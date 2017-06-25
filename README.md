@@ -1,2 +1,2 @@
 # pong-game
-very basic js pong game
+very basic js pong game 
