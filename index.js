@@ -1,4 +1,4 @@
-var fps = 30;
+var fps = 29;
 //global width and height
 var width, height;
 
@@ -22,12 +22,14 @@ var rpx, rpy;
 //when the dom has finished loading
 window.onload = function(){
     setupGameWorld();
+    setupEvents();
     GameWorld.render(draw, fps);
 };
 
 function setupGameWorld(){
     GameWorld.init();
     var gameInfo = GameWorld.getGameInfo();
+
     width = gameInfo.width;
     height = gameInfo.height;
     lpx = 0 + OFFSET;
@@ -39,15 +41,50 @@ function setupGameWorld(){
 }
 
 function setupEvents(){
+    GameWorld.hook('mousemove', function(evt){
+        var mousePos = calculateMousePosition(evt);
+        lpy = mousePos.y - (PADDLE_HEIGHT/2);
+        
+    })(GameWorld.getGameInfo().canvas);
+}
 
+function computerMovement(){
+    
+}
+
+function calculateMousePosition(evt){
+    var cvs = GameWorld.getGameInfo().canvas;
+    var rect = cvs.getBoundingClientRect();
+    var root = document.documentElement;
+    var mouseX = evt.clientX - rect.left - root.scrollLeft;
+    var mouseY = evt.clientY - rect.top - root.scrollTop;
+    return {
+        x: mouseX,
+        y: mouseY
+    };
+}
+
+function resetBall(){
+    ax  = -ax;
+    bx = width/2;
+    by = height/2;
 }
 
 function draw(){
     bx = bx + ax;
     by = by + ay;
+
     //boundary check for the ball
-    if(bx >= width || bx <= 0)
-        ax = -ax;
+    if(bx >= width || bx <= 0){
+        if(by > lpy && by < lpy + PADDLE_HEIGHT ||
+           by > rpy && by < rpy + PADDLE_HEIGHT){
+            ax = -ax;
+        }
+        else{
+            resetBall();
+        }
+    }
+    
     if(by >= height || by <= 0)
         ay = -ay;
 

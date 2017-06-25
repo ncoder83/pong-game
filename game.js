@@ -34,8 +34,14 @@ var GameWorld = (function(){
     }
 
     function render(cb, framerate){
-        var currentFPS = framerate | fps;
+        var currentFPS = framerate || fps;
         setInterval(cb, 1000/currentFPS);
+    }
+
+    function hook(eventName, cb){
+        return function(control){
+            return control.addEventListener(eventName, cb);
+        }
     }
 
     function drawbackground(color){
@@ -48,6 +54,7 @@ var GameWorld = (function(){
     return {
         init: init,
         render: render,
+        hook:hook,
         getGameInfo:getGameInfo,
         getGameContext: getGameContext,
         getGameCanvas: getGameCanvas
