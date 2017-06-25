@@ -26,6 +26,11 @@ var Make = (function(){
         return this;
     }
 
+    function text(x, y, message){
+        ctx.fillText(message, x, y);
+        return this;
+    }
+
     function circle(x, y, r){
         ellipse(x, y, r, 0);
         return this;
@@ -33,6 +38,7 @@ var Make = (function(){
     return {
         init:init,
         color:color,
+        text:text,
         rectangle:rectangle,
         square: square,
         ellipse: ellipse,
