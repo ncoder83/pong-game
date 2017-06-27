@@ -2,6 +2,7 @@ var fps = 29;
 //global width and height
 var width, height;
 
+var WINING_SCORE = 3;
 //ball position
 var bx, by;
 var BALL_RADIUS = 10;
@@ -11,10 +12,10 @@ var ax = 10;
 var ay = 10;
 
 //paddle size
-var PADDLE_WIDTH = 20;
-var PADDLE_HEIGHT = 120;
-var OFFSET = 0;
-var MARGIN = 35;
+const PADDLE_WIDTH = 10;
+const PADDLE_HEIGHT = 120;
+const OFFSET = 5;
+const MARGIN = 35;
 
 //left/right paddle position
 var lpx, lpy;
@@ -23,6 +24,8 @@ var rpx, rpy;
 //scoring system
 var p1Score = 0;
 var p2Score = 0;
+
+var showWinScreen = false;
 
 //when the dom has finished loading
 window.onload = function(){
@@ -50,6 +53,8 @@ function setupEvents(){
         var mousePos = calculateMousePosition(evt);
         lpy = mousePos.y - (PADDLE_HEIGHT/2);  
     })(GameWorld.getGameInfo().canvas);
+
+    GameWorld.hook('mousedown', mouseClickHandler)(GameWorld.getGameInfo().canvas);
 }
 
 function computerMovement(){
@@ -72,8 +77,20 @@ function calculateMousePosition(evt){
     };
 }
 
+function mouseClickHandler(evt){
+    if(showWinScreen){
+        p1Score = 0;
+        p2Score = 0;
+        showWinScreen = false;
+    }
+}
+
 function resetBall(){
+    if(p1Score >= WINING_SCORE || p2Score >= WINING_SCORE){
+        showWinScreen = true;
+    }
     ax  = -ax;
+    
     bx = width/2;
     by = height/2;
 }
@@ -85,35 +102,69 @@ function draw(){
     bx += ax;
     by += ay;
   
+
+    
     //boundary check for the ball
-    if(bx > width || bx < 0){
-        if(by > lpy && by < lpy + PADDLE_HEIGHT ||
-           by > rpy && by < rpy + PADDLE_HEIGHT){
+    if(bx < 0){// + OFFSET + PADDLE_WIDTH && 
+        if(lpy < by && by < lpy + PADDLE_HEIGHT){
             ax = -ax;
+            var deltaY = by - (lpy + PADDLE_HEIGHT /2);
+            ay = deltaY * 0.35;
         }
         else{
-            if(bx < 0)
-                p2Score++;
-            else if(bx > width)
-                p1Score++;
-
+            p2Score++;
             resetBall();
         }
     }
+
+    
+
+    if(bx > width - PADDLE_WIDTH - OFFSET){// - OFFSET - PADDLE_WIDTH && 
+        if(rpy < by && by < rpy + PADDLE_HEIGHT){
+            ax = -ax;
+            var deltaY = by - (rpy + PADDLE_HEIGHT /2);
+            ay = deltaY * 0.35;
+        }
+        else{
+             p1Score++;
+             resetBall();
+        }
+    }
+    
+    
     
     if(by >= height || by <= 0)
         ay = -ay;
 
     //background black
     Make.color('#222222').rectangle(0,0, width, height);
-    //left paddle
-    Make.color('#EFEFEF').rectangle(lpx, lpy, PADDLE_WIDTH, PADDLE_HEIGHT);
-    //right paddle
-    Make.color('#EFEFEF').rectangle(rpx, rpy, PADDLE_WIDTH, PADDLE_HEIGHT);
-    //ball
-    Make.color('#89cff0').circle(bx, by, BALL_RADIUS);
 
-    Make.color('#EFEFEF').text((width/2) - 40, 100, p1Score);
-    Make.color('#EFEFEF').text((width/2) + 40, 100, p2Score);
+    if(showWinScreen){
+        var txt = "Click to Continue";
+
+        if(p1Score >= WINING_SCORE)
+            Make.color('#EFEFEF').text(width/2,height/2, "Left Player Won");
+        else if(p2Score >= WINING_SCORE)
+            Make.color('#EFEFEF').text(width/2,height/2, "Right Player Won");
+        
+        Make.color('#EFEFEF').text((width/2) - txt.length/2, height - 100, txt);
+        return;
+    }
+
+
+    //left paddle
+    Make.color('white').rectangle(lpx, lpy, PADDLE_WIDTH, PADDLE_HEIGHT);
+   
+    //right paddle
+    Make.color('white').rectangle(rpx, rpy, PADDLE_WIDTH, PADDLE_HEIGHT);
+    //ball
+    Make.color('white').circle(bx, by, BALL_RADIUS);
+    //net
+    for(var i = 0; i < height; i += 40){
+        Make.color('yellow').rectangle(width/2 -1, i, 2, 20);
+    }
+    //add text
+    Make.color('#EFEFEF').text(100, 100, p1Score);
+    Make.color('#EFEFEF').text(width - 100, 100, p2Score);
 }
   
