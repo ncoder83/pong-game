@@ -90,8 +90,8 @@ class Pong {
             '111001001001001', //7
             '111101111101111', //8
             '111101111001111'  //9
-        ].map(str =>{
-            const canvas = document.creattElement('canvas');
+        ].map(str => {
+            const canvas = document.createElement('canvas');
             canvas.height = this.NUMBER_PIXEL * 5;
             canvas.width = this.NUMBER_PIXEL * 3;
             const context = canvas.getContext('2d');
@@ -100,7 +100,7 @@ class Pong {
                 if(fill === '1'){
                     context.fillRect((i % 3) * this.NUMBER_PIXEL, 
                                      (i / 3 | 0) * this.NUMBER_PIXEL,
-                                     this.NUMBER_PIXEL, this.NUMBERS);
+                                     this.NUMBER_PIXEL, this.NUMBER_PIXEL);
                 }
             });
             return canvas;
@@ -123,6 +123,7 @@ class Pong {
 
         this.drawRect(this.ball);
         this.players.forEach(p => this.drawRect(p));
+        this.drawScore();
     }
     drawRect(rect){
          this._context.fillStyle = '#FFF';
@@ -131,7 +132,16 @@ class Pong {
     }
     drawScore(){
         const align = this._canvas.width/3;
-        const NUMBER_W = this.
+        const NUMBER_W = this.NUMBER_PIXEL * 4;
+        this.players.forEach((player, index) => {
+            const chars = player.score.toString().split('');
+            const offset = align * (index + 1) - 
+                                   (NUMBER_W * chars.length / 2) + 
+                                   this.NUMBER_PIXEL / 2;
+            chars.forEach((char, pos) => {
+                this._context.drawImage(this.NUMBERS[char|0], offset + pos * NUMBER_W, 20);
+            });
+        });
     }
     reset(){
         this.ball.pos.x = this._canvas.width / 2;
@@ -160,7 +170,9 @@ class Pong {
         if(this.ball.top < 0 || this.ball.bottom > this._canvas.height){
             this.ball.vel.y = -this.ball.vel.y;
         }
+        //AI for the second player
         this.players[1].pos.y = this.ball.pos.y;
+
         this.players.forEach(player => this.collide(player, this.ball));
         this.draw();
     }
