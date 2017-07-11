@@ -53,6 +53,7 @@ class Pong {
         this._context = canvas.getContext('2d');
 
         this.ball = new Ball;
+       
         this.ball.pos.x = 100;
         this.ball.pos.y = 50;
 
@@ -123,12 +124,19 @@ class Pong {
 
         this.drawRect(this.ball);
         this.players.forEach(p => this.drawRect(p));
+        this.drawNet();
         this.drawScore();
     }
     drawRect(rect){
          this._context.fillStyle = '#FFF';
         this._context.fillRect(rect.left, rect.top, 
                                rect.size.x, rect.size.y);
+    }
+    drawNet(){
+        for(let i = 0; i <this._canvas.height; i += 30){
+            this._context.fill = '#FFF';
+            this._context.fillRect(this._canvas.width/2, i, 2, 20);
+        }
     }
     drawScore(){
         const align = this._canvas.width/3;
